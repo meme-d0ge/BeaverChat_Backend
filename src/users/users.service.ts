@@ -65,12 +65,22 @@ export class UsersService {
       where: {
         id: session.userId,
       },
+      relations: ['profile'],
     });
     if (!user) throw new BadRequestException('User not found');
     if (!(await argon.verify(user.password, deleteUserData.password))) {
       throw new BadRequestException('Passwords do not match');
     }
-    await this.usersRepository.delete(user);
+    await this.profilesRepository.save({
+      ...user.profile,
+      displayName: 'Deleted User',
+      bio: '',
+      avatar: '',
+      avatar_hash: '',
+      deleted: true,
+    });
+    await this.redisService.removeAllSessions(user.id);
+    await this.usersRepository.remove(user);
     return { success: true };
   }
 }

@@ -9,23 +9,22 @@ export class RedisService {
     private readonly redisClient: Redis,
   ) {}
 
-  async getAllSessions(userId: number) {
-    return this.redisClient.lrange(`userId:${userId}`, 0, -1);
-  }
   async removeAllSessions(userId: number) {
-    const sessions = await this.getAllSessions(userId);
+    const sessions = await this.getSessionsFromList(userId);
     for (const session of sessions) {
-      await this.deleteSessionValue(session);
+      await this.redisClient.del(`ses:${session}`);
     }
-    return this.redisClient.ltrim(`userId:${userId}`, -1, 0);
+    await this.redisClient.del(`userId:${userId}`);
+    return true;
   }
+
   async setSession(userId: number, session: string, sessionValue: Session) {
     await this.setSessionValue(session, sessionValue);
-    await this.appendSessionToList(userId, session);
+    await this.setSessionToList(userId, session);
   }
   async deleteSession(userId: number, session: string) {
     await this.deleteSessionValue(session);
-    await this.removeSessionFromList(userId, session);
+    await this.deleteSessionFromList(userId, session);
   }
 
   async setSessionValue(session: string, sessionValue: Session): Promise<'OK'> {
@@ -43,10 +42,13 @@ export class RedisService {
     return this.redisClient.del(`ses:${session}`);
   }
 
-  async appendSessionToList(userId: number, session: string) {
+  async setSessionToList(userId: number, session: string) {
     return this.redisClient.lpush(`userId:${userId}`, session);
   }
-  async removeSessionFromList(userId: number, session: string) {
+  async getSessionsFromList(userId: number) {
+    return this.redisClient.lrange(`userId:${userId}`, 0, -1);
+  }
+  async deleteSessionFromList(userId: number, session: string) {
     return this.redisClient.lrem(`userId:${userId}`, 1, session);
   }
 }

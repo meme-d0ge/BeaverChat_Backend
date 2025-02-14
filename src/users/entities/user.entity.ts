@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -17,10 +16,12 @@ export class User {
   @Column()
   username: string;
 
+  @Column({ default: '' })
+  email: string;
+
   @Column()
   password: string;
 
-  @JoinColumn()
   @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
   profile: Profile;
 
