@@ -11,6 +11,8 @@ import { Session } from '../shared/interfaces/session.interface';
 import { RedisService } from '../common/redis/redis.service';
 import { S3Service } from '../common/s3/s3.service';
 import { RequestWithSession } from '../shared/interfaces/request-with-session.interface';
+import { UserResponseDto } from './dto/user-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UsersService {
@@ -38,7 +40,16 @@ export class UsersService {
     await this.usersRepository.save(newUser);
     return { success: true };
   }
-
+  async getUser(req: RequestWithSession) {
+    const session: Session = req['session'];
+    const user = await this.usersRepository.findOne({
+      where: { id: session.userId },
+    });
+    if (!user) throw new BadRequestException('User not found');
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
+  }
   async changeUser(updateUserData: UpdateUserDto, req: RequestWithSession) {
     const session: Session = req['session'];
     if (updateUserData.password === updateUserData.newPassword) {
@@ -60,7 +71,6 @@ export class UsersService {
     await this.redisService.removeAllSessions(user?.id);
     return { success: true };
   }
-
   async deleteUser(deleteUserData: DeleteUserDto, req: RequestWithSession) {
     const session: Session = req['session'];
     const user = await this.usersRepository.findOne({

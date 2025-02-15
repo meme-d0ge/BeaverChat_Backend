@@ -7,6 +7,7 @@ import {
   Logger,
   UseGuards,
   Req,
+  Get,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,6 +24,12 @@ export class UsersController {
   async registry(@Body() createUserDto: CreateUserDto) {
     this.logger.log('POST request /api/users');
     return await this.usersService.create(createUserDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get()
+  async getUser(@Req() req: RequestWithSession) {
+    return await this.usersService.getUser(req);
   }
 
   @UseGuards(AuthGuard)
