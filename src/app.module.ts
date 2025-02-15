@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfilesModule } from './profiles/profiles.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './common/redis/redis.module';
+import { S3Module } from './common/s3/s3.module';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { RedisModule } from './common/redis/redis.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        DATABASE_HOST: Joi.string().required().default('localhost'),
+        DATABASE_HOST: Joi.string().default('localhost'),
         DATABASE_PORT: Joi.number().default(5432),
         DATABASE_USERNAME: Joi.string().default('postgres'),
         DATABASE_PASSWORD: Joi.string().default('postgres'),
@@ -35,11 +36,18 @@ import { RedisModule } from './common/redis/redis.module';
 
         REDIS_HOST: Joi.string().default('localhost'),
         REDIS_PORT: Joi.number().default(6379),
+
+        AWS_REGION: Joi.string().required(),
+        AWS_ENDPOINT: Joi.string().required(),
+        AWS_ACCESS_KEY_ID: Joi.string().required(),
+        AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+        AWS_BUCKET_AVATARS: Joi.string().required(),
       }),
     }),
     ProfilesModule,
     AuthModule,
     RedisModule,
+    S3Module,
   ],
 })
 export class AppModule {}

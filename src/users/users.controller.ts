@@ -13,7 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { AuthGuard } from '../auth/guard/auth.guard';
-import { Request } from 'express';
+import { RequestWithSession } from '../shared/interfaces/request-with-session.interface';
 
 @Controller('users')
 export class UsersController {
@@ -27,14 +27,20 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Patch()
-  changeUser(@Body() updateUserDto: UpdateUserDto, @Req() req: Request) {
+  changeUser(
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: RequestWithSession,
+  ) {
     this.logger.log('PATCH request /api/users');
     return this.usersService.changeUser(updateUserDto, req);
   }
 
   @UseGuards(AuthGuard)
   @Delete()
-  deleteUser(@Body() deleteUserDto: DeleteUserDto, @Req() req: Request) {
+  deleteUser(
+    @Body() deleteUserDto: DeleteUserDto,
+    @Req() req: RequestWithSession,
+  ) {
     this.logger.log('DELETE request /api/users');
     return this.usersService.deleteUser(deleteUserDto, req);
   }

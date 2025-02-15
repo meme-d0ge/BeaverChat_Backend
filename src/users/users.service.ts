@@ -9,7 +9,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { Session } from '../shared/interfaces/session.interface';
 import { RedisService } from '../common/redis/redis.service';
-import { Request } from 'express';
+import { S3Service } from '../common/s3/s3.service';
+import { RequestWithSession } from '../shared/interfaces/request-with-session.interface';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,7 @@ export class UsersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Profile) private profilesRepository: Repository<Profile>,
     private redisService: RedisService,
+    private s3Service: S3Service,
   ) {}
   async create(createUserData: CreateUserDto) {
     const user = await this.usersRepository.findOne({
@@ -37,7 +39,7 @@ export class UsersService {
     return { success: true };
   }
 
-  async changeUser(updateUserData: UpdateUserDto, req: Request) {
+  async changeUser(updateUserData: UpdateUserDto, req: RequestWithSession) {
     const session: Session = req['session'];
     if (updateUserData.password === updateUserData.newPassword) {
       throw new BadRequestException('Password must be different');
@@ -59,7 +61,7 @@ export class UsersService {
     return { success: true };
   }
 
-  async deleteUser(deleteUserData: DeleteUserDto, req: Request) {
+  async deleteUser(deleteUserData: DeleteUserDto, req: RequestWithSession) {
     const session: Session = req['session'];
     const user = await this.usersRepository.findOne({
       where: {
@@ -70,6 +72,9 @@ export class UsersService {
     if (!user) throw new BadRequestException('User not found');
     if (!(await argon.verify(user.password, deleteUserData.password))) {
       throw new BadRequestException('Passwords do not match');
+    }
+    if (user.profile.avatar) {
+      await this.s3Service.removeAvatar(user.profile.avatar);
     }
     await this.profilesRepository.save({
       ...user.profile,

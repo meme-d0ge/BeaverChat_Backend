@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
 
-export class ProfileResponseDto {
+export class ProfileOwnerResponseDto {
   @Expose()
   userId: number;
 
@@ -18,4 +18,7 @@ export class ProfileResponseDto {
 
   @Expose()
   createdAt: Date;
+
+  @Expose()
+  updatedAt: Date;
 }
