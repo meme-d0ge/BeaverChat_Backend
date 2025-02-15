@@ -40,7 +40,7 @@ export class UsersService {
     await this.usersRepository.save(newUser);
     return { success: true };
   }
-  async getUser(req: RequestWithSession) {
+  async getUser(req: RequestWithSession): Promise<UserResponseDto> {
     const session: Session = req['session'];
     const user = await this.usersRepository.findOne({
       where: { id: session.userId },

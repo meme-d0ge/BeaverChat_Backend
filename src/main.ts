@@ -16,6 +16,11 @@ async function bootstrap() {
     .setTitle('Beaver Chat')
     .setDescription('The beaver chat API description')
     .setVersion('1.0')
+    .addSecurity('cookieAuth', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'sessionId',
+    })
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

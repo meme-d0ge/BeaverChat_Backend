@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as argon from 'argon2';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
@@ -21,7 +21,7 @@ export class AuthService {
       },
     });
     if (!user || !(await argon.verify(user.password, loginData.password))) {
-      throw new BadRequestException('User or Password invalid');
+      throw new UnauthorizedException('User or Password invalid');
     }
 
     const session = crypto.randomUUID();

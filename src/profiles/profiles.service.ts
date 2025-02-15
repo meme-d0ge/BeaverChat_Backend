@@ -124,7 +124,18 @@ export class ProfilesService {
     if (changeCount > 0) {
       await this.profilesRepository.save(user.profile);
     }
-    return { success: true };
+    return plainToInstance(
+      ProfileOwnerResponseDto,
+      {
+        ...user.profile,
+        avatar: user.profile.avatar
+          ? this.s3Service.getLinkAvatar(user.profile.avatar)
+          : '',
+      } as Profile,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
   private async checkImage(image: Buffer<ArrayBuffer>) {
     const meta = await sharp(image).metadata();
