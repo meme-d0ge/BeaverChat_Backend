@@ -1,5 +1,5 @@
 export interface Session {
-  userId: number;
+  userId: string;
   createdAt: Date;
   main: boolean;
 }

@@ -12,16 +12,17 @@ import { ProfileResponseDto } from './dto/profile-response.dto';
 import { Profile } from './entity/profile.entity';
 import { ProfileOwnerResponseDto } from './dto/profile-owner-response.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import * as sharp from 'sharp';
 import { S3Service } from '../common/s3/s3.service';
 import * as crypto from 'node:crypto';
 import { RequestWithSession } from '../shared/interfaces/request-with-session.interface';
+import { FilesService } from '../common/files/files.service';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Profile) private profilesRepository: Repository<Profile>,
+    private filesService: FilesService,
     private s3Service: S3Service,
   ) {}
 
@@ -84,7 +85,9 @@ export class ProfilesService {
     if (avatar) {
       const hash = crypto.hash('md5', avatar.buffer);
       if (user.profile.avatar_hash !== hash) {
-        const dataAvatar = await this.checkImage(avatar.buffer);
+        const dataAvatar = await this.filesService.checkImageAvatar(
+          avatar.buffer,
+        );
         if (!dataAvatar || !dataAvatar.format) {
           throw new NotFoundException(
             'Avatar must be no more than 3 MB and be in jpeg/jpg/png format.',
@@ -136,21 +139,5 @@ export class ProfilesService {
         excludeExtraneousValues: true,
       },
     );
-  }
-  private async checkImage(image: Buffer<ArrayBuffer>) {
-    const meta = await sharp(image).metadata();
-    if (
-      meta &&
-      !(
-        meta.format === 'png' ||
-        meta.format === 'jpeg' ||
-        meta.format === 'jpg'
-      )
-    ) {
-      return false;
-    }
-    const size = meta.size;
-    if (size && size > 3 * 1024 * 1024) return false;
-    return meta;
   }
 }

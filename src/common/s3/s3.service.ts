@@ -51,6 +51,35 @@ export class S3Service {
     return `https://storage.yandexcloud.net/${this.configService.get<string>('AWS_BUCKET_AVATARS')}/${key}`;
   }
 
+  async uploadImage(
+    buffer_file: buffer.Buffer,
+    key: string,
+    typeContent: string,
+  ) {
+    const file: FileDto = {
+      key: key,
+      bucket: String(this.configService.get<string>('AWS_BUCKET_IMAGE')),
+    };
+    return await this.uploadFile(file, buffer_file, `image/${typeContent}`);
+  }
+  async downloadImage(key: string) {
+    const file: FileDto = {
+      key: key,
+      bucket: String(this.configService.get<string>('AWS_BUCKET_IMAGE')),
+    };
+    return await this.downloadFile(file);
+  }
+  async removeImage(key: string) {
+    const file: FileDto = {
+      key: key,
+      bucket: String(this.configService.get<string>('AWS_BUCKET_IMAGE')),
+    };
+    return await this.removeFile(file);
+  }
+  getLinkImage(key: string) {
+    return `https://storage.yandexcloud.net/${this.configService.get<string>('AWS_BUCKET_IMAGE')}/${key}`;
+  }
+
   async uploadFile(
     file: FileDto,
     buffer_file: buffer.Buffer,

@@ -7,6 +7,8 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './common/redis/redis.module';
 import { S3Module } from './common/s3/s3.module';
+import { PostsModule } from './posts/posts.module';
+import { FilesModule } from './common/files/files.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { S3Module } from './common/s3/s3.module';
     AuthModule,
     RedisModule,
     S3Module,
+    PostsModule,
+    FilesModule,
   ],
 })
 export class AppModule {}

@@ -3,19 +3,21 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Post } from '../../posts/entity/post.entity';
 
 @Entity()
 export class Profile {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ nullable: true })
-  userId: number;
+  userId: string;
 
   @OneToOne(() => User, (user) => user.profile, {
     nullable: true,
@@ -38,6 +40,9 @@ export class Profile {
 
   @Column({ default: false })
   deleted: boolean;
+
+  @OneToMany(() => Post, (post) => post.profile, { cascade: true })
+  posts: Post[];
 
   @CreateDateColumn()
   createdAt: Date;
