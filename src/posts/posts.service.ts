@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -107,5 +108,37 @@ export class PostsService {
         excludeExtraneousValues: true,
       },
     );
+  }
+
+  async deletePost(req: RequestWithSession, id: number) {
+    const session = req.session;
+    if (!session) throw new UnauthorizedException();
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: session.userId,
+      },
+      relations: ['profile', 'profile.posts'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+    const post = await this.postsRepository.findOne({
+      where: {
+        id: id,
+      },
+      relations: ['profile', 'links'],
+    });
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.profile.userId !== session.userId) {
+      throw new ForbiddenException(
+        'You do not have permission to delete this post.',
+      );
+    }
+
+    const promises = post.links.map(async (link) => {
+      await this.s3Service.removeImage(link.key_url);
+      await this.linksRepository.delete(link);
+    });
+    await Promise.all(promises);
+    await this.postsRepository.remove(post);
+    return { success: true };
   }
 }

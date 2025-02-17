@@ -9,7 +9,6 @@ import {
 } from 'typeorm';
 import { Link } from './link.entity';
 import { Profile } from '../../profiles/entity/profile.entity';
-import { LinkResponseDto } from '../dto/link-response.dto';
 
 @Entity()
 export class Post {
@@ -26,7 +25,7 @@ export class Post {
   content: string;
 
   @OneToMany(() => Link, (link) => link.post, { cascade: true })
-  links: LinkResponseDto[];
+  links: Link[];
 
   @CreateDateColumn()
   createdAt: Date;

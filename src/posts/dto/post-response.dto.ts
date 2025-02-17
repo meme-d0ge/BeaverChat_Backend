@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { Link } from '../entity/link.entity';
+import { LinkResponseDto } from './link-response.dto';
 
 export class PostResponseDto {
   @Expose()
@@ -12,7 +12,7 @@ export class PostResponseDto {
   content: string;
 
   @Expose()
-  links: Link[];
+  links: LinkResponseDto[];
 
   @Expose()
   createdAt: Date;
