@@ -3,6 +3,9 @@ import { Link } from '../entity/link.entity';
 
 export class PostResponseDto {
   @Expose()
+  id: number;
+
+  @Expose()
   title: string;
 
   @Expose()

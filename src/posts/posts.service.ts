@@ -82,15 +82,12 @@ export class PostsService {
       });
     });
     const post = this.postsRepository.create({
+      profile: user.profile,
       title: createPostData.title,
       content: createPostData.content,
       links: links,
     });
-    const profile = this.profileRepository.create({
-      ...user.profile,
-      posts: [...user.profile.posts, post],
-    });
-    await this.profileRepository.save(profile);
+    await this.postsRepository.save(post);
 
     return plainToInstance(
       PostResponseDto,
