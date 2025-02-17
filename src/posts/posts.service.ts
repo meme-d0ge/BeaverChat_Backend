@@ -18,6 +18,7 @@ import { Profile } from '../profiles/entity/profile.entity';
 import { plainToInstance } from 'class-transformer';
 import { PostResponseDto } from './dto/post-response.dto';
 import { LinkResponseDto } from './dto/link-response.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -102,6 +103,55 @@ export class PostsService {
             },
             { excludeExtraneousValues: true },
           );
+        }),
+      },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+  }
+
+  async changePost(
+    req: RequestWithSession,
+    updatePostData: UpdatePostDto,
+    id: number,
+  ) {
+    const session = req.session;
+    if (!session) throw new UnauthorizedException();
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: session.userId,
+      },
+      relations: ['profile', 'profile.posts'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+    const post = await this.postsRepository.findOne({
+      where: {
+        id: id,
+      },
+      relations: ['profile', 'links'],
+    });
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.profile.userId !== session.userId) {
+      throw new ForbiddenException(
+        'You do not have permission to change this post.',
+      );
+    }
+
+    if (updatePostData.title) {
+      post.title = updatePostData.title;
+    }
+    if (updatePostData.content) {
+      post.content = updatePostData.content;
+    }
+
+    const newPost = await this.postsRepository.save(post);
+    return plainToInstance(
+      PostResponseDto,
+      {
+        ...newPost,
+        links: plainToInstance(LinkResponseDto, newPost.links, {
+          excludeExtraneousValues: true,
         }),
       },
       {
