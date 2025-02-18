@@ -16,11 +16,7 @@ import { S3Service } from '../common/s3/s3.service';
 import * as crypto from 'node:crypto';
 import { RequestWithSession } from '../shared/interfaces/request-with-session.interface';
 import { FilesService } from '../common/files/files.service';
-import { PaginationDto } from './dto/pagination.dto';
 import { Post } from '../posts/entity/post.entity';
-import { PostResponseDto } from '../posts/dto/post-response.dto';
-import { LinkResponseDto } from '../posts/dto/link-response.dto';
-import { ResponsePostsDto } from './dto/response-posts.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -141,53 +137,6 @@ export class ProfilesService {
           ? this.s3Service.getLinkAvatar(user.profile.avatar)
           : '',
       } as Profile,
-      {
-        excludeExtraneousValues: true,
-      },
-    );
-  }
-
-  async getPostsFromProfile(paginationData: PaginationDto, username: string) {
-    const post = await this.postsRepository.findAndCount({
-      where: {
-        profile: {
-          user: {
-            username: username,
-          },
-        },
-      },
-      relations: ['links'],
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (paginationData.page - 1) * paginationData.limit,
-      take: paginationData.limit,
-    });
-    const posts = post[0].map((post) => {
-      return plainToInstance(
-        PostResponseDto,
-        {
-          ...post,
-          links: post.links.map((link) => {
-            return plainToInstance(LinkResponseDto, link, {
-              excludeExtraneousValues: true,
-            });
-          }),
-        },
-        {
-          excludeExtraneousValues: true,
-        },
-      );
-    });
-    const total = post[1];
-    return plainToInstance(
-      ResponsePostsDto,
-      {
-        total: total,
-        limit: paginationData.limit,
-        page: paginationData.page,
-        posts: posts,
-      },
       {
         excludeExtraneousValues: true,
       },

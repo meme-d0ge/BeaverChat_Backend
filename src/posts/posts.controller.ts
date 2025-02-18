@@ -1,11 +1,11 @@
 import {
   Body,
   Controller,
-  Delete,
+  Delete, Get,
   Logger,
   Param,
   Patch,
-  Post,
+  Post, Query,
   Req,
   UploadedFiles,
   UseGuards,
@@ -52,5 +52,14 @@ export class PostsController {
   deletePost(@Req() req: RequestWithSession, @Param('id') id: number) {
     this.logger.log(`POST /api/posts/${id}`);
     return this.postsService.deletePost(req, id);
+  }
+
+  @Get(':username')
+  async getPostsFromProfileByUsername(
+    @Param('username') username: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return await this.postsService.getPostsFromProfile(limit, page, username);
   }
 }

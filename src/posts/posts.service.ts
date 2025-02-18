@@ -19,6 +19,7 @@ import { plainToInstance } from 'class-transformer';
 import { PostResponseDto } from './dto/post-response.dto';
 import { LinkResponseDto } from './dto/link-response.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { ResponsePostsDto } from '../profiles/dto/response-posts.dto';
 
 @Injectable()
 export class PostsService {
@@ -109,7 +110,6 @@ export class PostsService {
       },
     );
   }
-
   async changePost(
     req: RequestWithSession,
     updatePostData: UpdatePostDto,
@@ -218,7 +218,6 @@ export class PostsService {
       },
     );
   }
-
   async deletePost(req: RequestWithSession, id: number) {
     const session = req.session;
     if (!session) throw new UnauthorizedException();
@@ -249,5 +248,52 @@ export class PostsService {
     await Promise.all(promises);
     await this.postsRepository.remove(post);
     return { success: true };
+  }
+
+  async getPostsFromProfile(limit: number, page: number, username: string) {
+    const post = await this.postsRepository.findAndCount({
+      where: {
+        profile: {
+          user: {
+            username: username,
+          },
+        },
+      },
+      relations: ['links'],
+      order: {
+        createdAt: 'DESC',
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    const posts = post[0].map((post) => {
+      return plainToInstance(
+        PostResponseDto,
+        {
+          ...post,
+          links: post.links.map((link) => {
+            return plainToInstance(LinkResponseDto, link, {
+              excludeExtraneousValues: true,
+            });
+          }),
+        },
+        {
+          excludeExtraneousValues: true,
+        },
+      );
+    });
+    const total = post[1];
+    return plainToInstance(
+      ResponsePostsDto,
+      {
+        total: total,
+        limit: limit,
+        page: page,
+        posts: posts,
+      },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 }
