@@ -36,13 +36,15 @@ export class PostsController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
+  @UseInterceptors(FilesInterceptor('files'))
   async updatePost(
     @Req() req: RequestWithSession,
     @Param('id') id: number,
     @Body() updatePostData: UpdatePostDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     this.logger.log(`PATCH /api/posts/${id}`);
-    return await this.postsService.changePost(req, updatePostData, id);
+    return await this.postsService.changePost(req, updatePostData, files, id);
   }
 
   @UseGuards(AuthGuard)

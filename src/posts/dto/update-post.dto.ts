@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdatePostDto {
   @MaxLength(100)
@@ -10,4 +10,8 @@ export class UpdatePostDto {
   @IsString()
   @IsOptional()
   content?: string;
+
+  @IsArray()
+  @IsOptional()
+  deleteImage?: string[];
 }
