@@ -26,6 +26,7 @@ import {
 } from '@nestjs/swagger';
 import { ProfileResponseDto } from './dto/profile-response.dto';
 import { ProfileOwnerResponseDto } from './dto/profile-owner-response.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @ApiTags('profiles')
 @Controller('profiles')
@@ -111,6 +112,17 @@ export class ProfilesController {
       req,
       updateProfileData,
       avatar,
+    );
+  }
+
+  @Get('/posts/:username')
+  async getPostsFromProfile(
+    @Param('username') username: string,
+    @Body() paginationData: PaginationDto,
+  ) {
+    return await this.profilesService.getPostsFromProfile(
+      paginationData,
+      username,
     );
   }
 }
