@@ -38,6 +38,19 @@ export class AuthService {
       path: '/',
     });
     res.json({ success: true, message: 'Login successfully' });
-    return { success: true };
+  }
+
+  async logout(res: Response, req: Request) {
+    const session: Session = req['session'];
+    await this.redisService.deleteSession(session.value, session.userId);
+
+    res.cookie('sessionId', '', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 0,
+      path: '/',
+    });
+    res.json({ success: true, message: 'Logout successfully' });
   }
 }

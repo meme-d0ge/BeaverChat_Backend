@@ -14,7 +14,6 @@ import { Post } from './entity/post.entity';
 import { Repository } from 'typeorm';
 import { Link } from './entity/link.entity';
 import { User } from '../users/entities/user.entity';
-import { Profile } from '../profiles/entity/profile.entity';
 import { plainToInstance } from 'class-transformer';
 import { PostResponseDto } from './dto/post-response.dto';
 import { LinkResponseDto } from './dto/link-response.dto';
@@ -29,7 +28,6 @@ export class PostsService {
     @InjectRepository(Post) private postsRepository: Repository<Post>,
     @InjectRepository(Link) private linksRepository: Repository<Link>,
     @InjectRepository(User) private usersRepository: Repository<User>,
-    @InjectRepository(Profile) private profileRepository: Repository<Profile>,
   ) {}
   async createPost(
     req: RequestWithSession,

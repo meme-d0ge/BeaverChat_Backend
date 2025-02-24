@@ -9,13 +9,14 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const cookie = request.cookies;
     if (cookie['sessionId']) {
-      const sessionId = cookie['sessionId'];
+      const sessionId: string = cookie['sessionId'];
       const session = await this.redisService.getSessionValue(sessionId);
       if (!session) {
         return false;
       }
       request['session'] = {
         ...session,
+        value: sessionId,
       };
       return true;
     }

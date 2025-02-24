@@ -60,6 +60,7 @@ export class UsersController {
     type: UserResponseDto,
   })
   async getUser(@Req() req: RequestWithSession) {
+    this.logger.log('GET request /api/users');
     return await this.usersService.getUser(req);
   }
 
