@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   Post,
   Req,
@@ -49,6 +50,7 @@ export class AuthController {
     return await this.authService.login(loginData, response);
   }
 
+  @Delete('logout')
   @UseGuards(AuthGuard)
   async logout(@Res() res: Response, @Req() req: Request) {
     return this.authService.logout(res, req);
